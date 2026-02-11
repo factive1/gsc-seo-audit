@@ -1,0 +1,14 @@
+{
+  "name": "gsc-seo-audit-marketplace",
+  "owner": {
+    "name": "Cameron Olthuis",
+    "url": "https://github.com/factive1"
+  },
+  "plugins": [
+    {
+      "name": "gsc-seo-audit",
+      "description": "Run comprehensive SEO audits using the Google Search Console API and site crawling.",
+      "source": "./plugins/gsc-seo-audit"
+    }
+  ]
+}

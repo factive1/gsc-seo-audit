@@ -18,13 +18,8 @@ This plugin turns Claude Code into a senior SEO analyst. Point it at your Search
 ## Install
 
 ```bash
-claude /plugin install --dir /path/to/gsc-seo-audit
-```
-
-Or if published to a GitHub repo:
-
-```bash
-claude /plugin install github:your-username/gsc-seo-audit
+claude plugin marketplace add https://github.com/factive1/gsc-seo-audit.git
+claude plugin install gsc-seo-audit
 ```
 
 ## Setup (One Time)
@@ -46,7 +41,7 @@ GSC_SITE_URL=sc-domain:example.com
 GSC_BLOG_PATH=/blog/
 ```
 
-For the detailed walkthrough with screenshots and troubleshooting, see [setup-guide.md](skills/audit/setup-guide.md).
+For the detailed walkthrough with screenshots and troubleshooting, see [setup-guide.md](plugins/gsc-seo-audit/skills/audit/setup-guide.md).
 
 ## Usage
 
