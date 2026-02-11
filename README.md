@@ -12,6 +12,7 @@ This plugin turns Claude Code into a senior SEO analyst. Point it at your Search
 - **Striking Distance Keywords** — Surface keywords at positions 11-20 that are close to page 1
 - **Title Tag Recommendations** — AI-generated title tags optimized for CTR using proven click triggers
 - **Technical SEO** — Lighthouse audits, schema markup review, Core Web Vitals assessment
+- **Internal Linking Analysis** — Crawl-based link graph showing orphan pages, under-linked pages, anchor text diversity, and link equity distribution. Separates template/nav links from genuine contextual body links. No API credentials required.
 - **Disappeared Pages** — Find pages that dropped out of search results entirely
 
 ## Install
@@ -74,6 +75,14 @@ After the initial audit, just ask Claude to go deeper on any area:
 - "Run Lighthouse audits on the top pages"
 - "Check schema markup"
 - "What are the page speed issues?"
+
+**Pass 4 — Internal Linking:**
+- "Analyze internal links"
+- "Find orphan pages"
+- "Show me link equity distribution"
+- "Which content pages aren't linking to money pages?"
+
+No GSC credentials required for this pass — it crawls the site directly via sitemap.
 
 ## How CTR Gap Analysis Works
 
