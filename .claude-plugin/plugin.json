@@ -1,0 +1,13 @@
+{
+  "name": "gsc-seo-audit",
+  "description": "Run comprehensive SEO audits using the Google Search Console API. Analyzes traffic trends, CTR gaps, keyword cannibalization, striking distance keywords, and generates title tag recommendations — all from a single conversation.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Cameron Olthuis"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "license": "MIT"
+}
