@@ -45,7 +45,7 @@ GSC_SITE_URL=sc-domain:example.com
 GSC_BLOG_PATH=/blog/
 ```
 
-For the detailed walkthrough with screenshots and troubleshooting, see [setup-guide.md](skills/gsc-seo-audit/setup-guide.md).
+For the detailed walkthrough with screenshots and troubleshooting, see [setup-guide.md](skills/audit/setup-guide.md).
 
 ## Usage
 
@@ -81,11 +81,11 @@ The plugin compares your actual click-through rate against industry benchmarks f
 
 | Position | Expected CTR |
 |----------|-------------|
-| 1 | 31.6% |
-| 2 | 24.1% |
-| 3 | 18.7% |
-| 5 | 9.5% |
-| 10 | 2.4% |
+| 1 | 13.3% |
+| 2 | 11.9% |
+| 3 | 10.0% |
+| 5 | 6.4% |
+| 10 | 1.9% |
 
 **Missed Clicks** = Impressions × (Expected CTR - Actual CTR)
 

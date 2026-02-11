@@ -83,11 +83,11 @@ When the user asks to go deeper, run these additional analyses:
 For each page, compare actual CTR vs expected CTR based on average position. Use these industry benchmarks:
 
 ```
-Position 1: 31.6%   Position 6: 6.3%    Position 11: 1.2%   Position 16: 0.5%
-Position 2: 24.1%   Position 7: 4.4%    Position 12: 1.0%   Position 17: 0.4%
-Position 3: 18.7%   Position 8: 3.4%    Position 13: 0.8%   Position 18: 0.4%
-Position 4: 13.2%   Position 9: 2.8%    Position 14: 0.7%   Position 19: 0.3%
-Position 5: 9.5%    Position 10: 2.4%   Position 15: 0.6%   Position 20: 0.3%
+Position 1: 13.3%   Position 6: 4.4%    Position 11: 1.0%   Position 16: 0.4%
+Position 2: 11.9%   Position 7: 3.1%    Position 12: 0.9%   Position 17: 0.4%
+Position 3: 10.0%   Position 8: 2.4%    Position 13: 0.7%   Position 18: 0.3%
+Position 4: 8.1%    Position 9: 2.0%    Position 14: 0.6%   Position 19: 0.3%
+Position 5: 6.4%    Position 10: 1.9%   Position 15: 0.5%   Position 20: 0.3%
 ```
 
 **Missed Clicks Formula:** `Impressions x (Expected CTR - Actual CTR)`
