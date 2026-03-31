@@ -175,6 +175,188 @@ If GSC credentials are configured and Pass 1/2 data is available, enhance the an
 
 **Analysis format:** Present link counts showing both total and contextual breakdowns. End with a prioritized list of internal linking actions, ranked by potential traffic impact.
 
+### Pass 5: Click Quality Signals Analysis (if requested)
+
+If the user asks about click quality, NavBoost signals, page-level click health, click velocity, or engagement signals:
+
+This pass evaluates **page-level click quality** through the lens of Google's NavBoost algorithm framework. While Pass 2 operates at the query level (individual keyword CTR gaps), Pass 5 aggregates all queries per page into a holistic click health assessment with temporal trend analysis.
+
+**Background:** Based on findings from the Google antitrust trial (U.S. v. Google), the Google API leak, and patent US8661029B1, Google's NavBoost system — described as "one of Google's most important algorithms" — evaluates five click signals: impressions, clicks, bad clicks (quick bounces), good clicks (extended engagement), and last longest clicks (complete satisfaction). NavBoost memorizes 13 months of this data to re-rank results.
+
+GSC cannot directly measure post-click signals (bad/good/last longest clicks). This pass uses GSC-derived proxy indicators with honest confidence labeling.
+
+#### Data Queries
+
+Pass 5 is self-contained — it generates its own GSC queries and does not require Pass 1 or 2 to have been run first.
+
+**Query 1 — Page-level aggregates (current 90 days):**
+
+```javascript
+const response = await searchconsole.searchanalytics.query({
+  siteUrl: siteUrl,
+  requestBody: {
+    startDate: ninetyDaysAgo,
+    endDate: today,
+    dimensions: ['page'],
+    rowLimit: 5000,
+  },
+});
+// Filter to pages with 200+ impressions AND 10+ clicks
+const qualifyingPages = response.data.rows.filter(
+  row => row.impressions >= 200 && row.clicks >= 10
+);
+```
+
+**Query 2 — Page-level weekly trends (current 90 days):**
+
+```javascript
+const response = await searchconsole.searchanalytics.query({
+  siteUrl: siteUrl,
+  requestBody: {
+    startDate: ninetyDaysAgo,
+    endDate: today,
+    dimensions: ['page', 'date'],
+    rowLimit: 5000,
+  },
+});
+// Group by page + ISO week for velocity and stability calculations
+```
+
+**Query 3 — Page × Query breakdown (current 90 days):**
+
+```javascript
+// Run per qualifying page (or batch if under API limits)
+const response = await searchconsole.searchanalytics.query({
+  siteUrl: siteUrl,
+  requestBody: {
+    startDate: ninetyDaysAgo,
+    endDate: today,
+    dimensions: ['page', 'query'],
+    dimensionFilterGroups: [{
+      filters: [{ dimension: 'page', expression: pageUrl }]
+    }],
+    rowLimit: 5000,
+  },
+});
+// Filter to query-page pairs with 50+ impressions
+```
+
+**Data thresholds:**
+- Pages need 200+ impressions AND 10+ clicks to receive a Click Health Score
+- Pages below threshold get an "Insufficient data" label — do not score them
+- Query-level breakdowns require 50+ impressions per query-page pair
+- Note the GSC 5,000-row sampling limit when reporting — if results are truncated, say so
+
+#### Click Health Score
+
+Calculate a composite score (0-100) for each qualifying page using five weighted components:
+
+```
+Click Health Score = weighted average of:
+  - CTR Performance (30%): actual aggregate CTR vs expected CTR at average position
+    → Use the same position-based CTR benchmarks from Pass 2
+    → Score 100 if CTR >= expected, scale down linearly to 0 at 0% CTR
+
+  - Click Velocity (25%): week-over-week click trend direction
+    → Calculate slope of weekly clicks over the 90-day window
+    → Score 100 for strong positive trend, 50 for flat, 0 for steep decline
+
+  - Query Diversity (20%): distribution of clicks across queries
+    → Calculate Herfindahl-Hirschman Index (HHI) of click share per query
+    → Score = (1 - HHI) × 100 (0 = all clicks from one query, 100 = perfectly distributed)
+
+  - Position Stability (15%): consistency of average position across weeks
+    → Calculate standard deviation of weekly average position
+    → Score 100 for stddev < 0.5, scale down to 0 for stddev > 5.0
+
+  - CTR Consistency (10%): % of queries performing at or near expected CTR
+    → For each query, check if actual CTR is within 50% of position-expected CTR
+    → Score = (% of queries meeting threshold) × 100
+```
+
+**Score tiers:**
+- **Strong (75-100):** Page is generating healthy click signals across all dimensions
+- **Moderate (50-74):** Some dimensions need attention but overall acceptable
+- **Weak (25-49):** Multiple click quality issues — prioritize for improvement
+- **Critical (0-24):** Significant problems across dimensions — immediate action needed
+
+#### Output Sections
+
+**1. Click Quality Dashboard**
+
+Present a table of all qualifying pages:
+
+| Page | Score | Tier | Primary Issue | Trend |
+|------|-------|------|--------------|-------|
+| /example-page/ | 82 | Strong | — | ↑ |
+| /another-page/ | 41 | Weak | Single-query dependent | ↓ |
+
+Flag the primary issue for each page based on which component scored lowest:
+- Lowest is CTR Performance → "Below-expected CTR"
+- Lowest is Click Velocity → "Declining velocity"
+- Lowest is Query Diversity → "Single-query dependent"
+- Lowest is Position Stability → "Volatile position"
+- Lowest is CTR Consistency → "Inconsistent CTR across queries"
+
+**2. Click Velocity Analysis**
+
+- Top 10 pages with strongest positive click momentum (accelerating)
+- Top 10 pages with strongest negative click momentum (decaying)
+- Show week-over-week click counts for these pages
+- NavBoost interpretation: "Pages with sustained declining velocity may be losing NavBoost credit as Google's 13-month memory window updates with fresher data. Conversely, pages with accelerating clicks are building stronger NavBoost signals over time."
+
+**3. Query Concentration Risk Report**
+
+- **Fragile pages:** Where a single query drives 60%+ of total clicks — one algorithm shift could collapse traffic
+- **Resilient pages:** Clicks spread across many queries — stable even through ranking fluctuations
+- For fragile pages, recommend content expansion to capture related queries and diversify click sources
+
+**4. Position Stability Assessment**
+
+- Pages with high weekly position variance (stddev > 3.0): Google may still be testing — this is an opportunity to influence NavBoost's evaluation through improved click quality
+- Pages with locked-in positions (stddev < 1.0): NavBoost has likely settled — improvements here require stronger signals
+- Interpretation: "Volatile positions suggest Google's ranking systems haven't reached a stable assessment. Improving the page's content quality, user experience, and ability to satisfy the searcher's intent can tip the scales during this testing period."
+
+**5. CTR Consistency Audit**
+
+- For each scored page, show which queries perform well vs poorly relative to their position
+- This is distinct from Pass 2 — here we show the spread per page, not individual keyword optimization
+- Pages where most queries underperform = systemic page-level issue (the problem is the page itself, not a single title tag)
+- Pages where only 1-2 queries underperform = targeted fix needed for those specific queries
+
+**6. Prioritized Action List**
+
+Rank pages by Click Health Score (worst first) with specific recommendations:
+
+- **Critical pages:** Diagnose root cause — is it declining traffic, query concentration, or systemic CTR problems?
+- **Weak pages:** Identify which specific component(s) drag the score down and recommend targeted fixes
+- **Moderate pages:** Suggest targeted improvements to reach Strong tier
+- Match the existing plugin convention: rank by estimated traffic impact, ease of implementation, speed to results
+
+#### Cross-Reference with Earlier Passes
+
+If data from earlier passes is available in the conversation context, enhance the analysis:
+
+- Pages that are **"Biggest Losers" (Pass 1) AND have declining click velocity (Pass 5)** = highest priority. The traffic decline aligns with weakening NavBoost signals.
+- **Striking distance keywords (Pass 1) on pages with Strong click health** = best candidates for promotion to page 1. Strong click signals suggest NavBoost would reward higher placement.
+- Pages with **CTR gaps (Pass 2) AND low CTR consistency (Pass 5)** = systemic page-level issue, not just a title tag problem. Fixing the title alone won't help if most queries underperform.
+- **Orphan pages (Pass 4) with Weak click health** = internal linking could boost both discoverability and click quality signals by driving more diverse traffic.
+
+#### NavBoost Framing Guidelines
+
+When presenting Pass 5 results, follow these guidelines:
+
+1. **Never claim to measure NavBoost directly.** Use language like "indicators that align with" or "informed by NavBoost research." The Click Health Score is a diagnostic tool, not a prediction of Google rankings.
+2. **Cite sources when making NavBoost-related interpretations.** Reference the antitrust trial, API leak, or patent as appropriate. Example: "According to testimony in U.S. v. Google, NavBoost memorizes 13 months of click interaction data..."
+3. **Distinguish confidence levels in the output:**
+   - High confidence: CTR performance, click volume, query diversity (direct GSC data)
+   - Moderate confidence: Click velocity trends, position stability (derived from GSC time-series)
+   - Low confidence: Satisfaction and engagement quality (cannot be measured without GA4 or similar post-click data)
+4. **Include this methodology note** at the top of Pass 5 output:
+   > **Click Quality Indicators** (informed by NavBoost research)
+   >
+   > These indicators are derived from Google Search Console data and align with the dimensions Google's NavBoost system is known to evaluate, based on antitrust trial testimony and API documentation. They do not directly measure NavBoost signals. Post-click engagement metrics from Google Analytics would improve confidence in satisfaction-related assessments.
+
 ## Output Format
 
 Present all findings in clean, readable markdown tables. After each analysis section, provide a brief interpretation of what the data means and what action to take.

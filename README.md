@@ -13,6 +13,7 @@ This plugin turns Claude Code into a senior SEO analyst. Point it at your Search
 - **Title Tag Recommendations** — AI-generated title tags optimized for CTR using proven click triggers
 - **Technical SEO** — Lighthouse audits, schema markup review, Core Web Vitals assessment
 - **Internal Linking Analysis** — Crawl-based link graph showing orphan pages, under-linked pages, anchor text diversity, and link equity distribution. Separates template/nav links from genuine contextual body links. No API credentials required.
+- **Click Quality Signals** — Page-level click health scoring informed by Google's NavBoost algorithm framework. Evaluates click velocity trends, query concentration risk, position stability, and CTR consistency across all queries per page. Produces a composite Click Health Score (0-100) with tier ratings and prioritized recommendations.
 - **Disappeared Pages** — Find pages that dropped out of search results entirely
 
 ## Install
@@ -79,6 +80,13 @@ After the initial audit, just ask Claude to go deeper on any area:
 
 No GSC credentials required for this pass — it crawls the site directly via sitemap.
 
+**Pass 5 — Click Quality Signals:**
+- "Analyze click quality signals"
+- "Run a NavBoost analysis"
+- "Show me click health scores for my pages"
+- "Which pages have declining click velocity?"
+- "Find pages with query concentration risk"
+
 ## How CTR Gap Analysis Works
 
 The plugin compares your actual click-through rate against industry benchmarks for each SERP position:
@@ -94,6 +102,26 @@ The plugin compares your actual click-through rate against industry benchmarks f
 **Missed Clicks** = Impressions × (Expected CTR - Actual CTR)
 
 This tells you exactly how many clicks you're leaving on the table for each keyword, and which title tags need rewriting.
+
+## How Click Quality Scoring Works
+
+Pass 5 evaluates page-level click health informed by Google's [NavBoost algorithm](https://signal.zyppy.com/p/google-click-signals) — documented through the Google antitrust trial, API leak, and patent filings.
+
+Each qualifying page (200+ impressions, 10+ clicks) gets a **Click Health Score** (0-100) based on five weighted components:
+
+| Component | Weight | What It Measures |
+|-----------|--------|-----------------|
+| CTR Performance | 30% | Aggregate CTR vs expected CTR at position |
+| Click Velocity | 25% | Week-over-week click trend direction |
+| Query Diversity | 20% | How spread out clicks are across queries |
+| Position Stability | 15% | How consistent position is week to week |
+| CTR Consistency | 10% | % of queries performing at expected CTR |
+
+Pages are classified into tiers: **Strong** (75+), **Moderate** (50-74), **Weak** (25-49), **Critical** (<25).
+
+While Pass 2 tells you *which keywords* need better title tags, Pass 5 tells you *which pages* have systemic click quality issues — and whether those issues are getting better or worse over time.
+
+> **Note:** These are proxy indicators derived from GSC data, not direct measurements of Google's internal click signals. Post-click engagement metrics from GA4 would improve confidence in satisfaction-related assessments.
 
 ## Requirements
 
